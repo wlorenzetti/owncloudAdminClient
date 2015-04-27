@@ -90,6 +90,10 @@ class Client(object):
             raise StatusCodeException(res.status,res.statuscode,res.message)
         return res
 
+    @property
+    def auth(self):
+        return self.__auth
+
     def getUsers(self):
         toRet = []
         res = self.__makeRequest('users')
