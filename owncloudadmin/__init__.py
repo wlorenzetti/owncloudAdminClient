@@ -53,7 +53,8 @@ class Client(object):
         if not url[-1] == '/':
             url = url + '/'
 
-        self.url = url + OCS_ADMIN
+        self.__ocs_admin = kwargs.get('ocs_admin', OCS_ADMIN)
+        self.url = url + self.__ocs_admin
         self.__auth = (username,password)
         self.__debug = kwargs.get('debug', False)
 
@@ -75,7 +76,14 @@ class Client(object):
 
 
     def __makeRequest(self,apiName,*args,**kwargs):
-        r = requests.get(self.__compileUrl(apiName,*args,**kwargs),auth=self.__auth)
+        s = requests.Session()
+        reqMethod = kwargs.get('method','GET')
+        reqData = kwargs.get('data',{})
+        req = requests.Request(reqMethod,self.__compileUrl(apiName,*args,**kwargs),
+                               auth=self.__auth,
+                               data=reqData
+                               )
+        r = s.send(req.prepare())
         r.raise_for_status()
         res = Response(r.text)
         if res.statuscode != 100:
